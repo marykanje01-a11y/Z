@@ -72,10 +72,12 @@ export default function ChatPanel({
   const handleSend = () => {
     if (!inputText.trim() || !rideId || !driverName || !rideStatus) return;
 
-    const validStatuses = ['accepted', 'arrived', 'started'];
-    if (!validStatuses.includes(rideStatus)) return;
+    const terminalStatuses = ['completed', 'rejected', 'expired', 'cancelled', 'delivered'];
+    if (terminalStatuses.includes(rideStatus)) return;
 
-    sendDriverMessage(database, rideId, driverId, driverName, inputText.trim());
+    void sendDriverMessage(database, rideId, driverId, driverName, inputText.trim()).catch((error) => {
+      console.error('[chat] failed to send driver message', error);
+    });
     setInputText('');
 
     setTimeout(() => {
@@ -85,7 +87,9 @@ export default function ChatPanel({
 
   if (!visible) return null;
 
-  const canSendMessages = rideId && rideStatus && ['accepted', 'arrived', 'started'].includes(rideStatus);
+  const canSendMessages = Boolean(
+    rideId && rideStatus && !['completed', 'rejected', 'expired', 'cancelled', 'delivered'].includes(rideStatus)
+  );
 
   return (
     <View style={styles.overlay}>

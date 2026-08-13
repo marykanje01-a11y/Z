@@ -49,19 +49,22 @@ function archiveMsgCol(driverId: string, rideId: string) {
   return collection(firestore, 'driver_conversations', driverId, 'threads', rideId, 'messages');
 }
 
-export function sendDriverMessage(
+export async function sendDriverMessage(
   database: Database,
   rideId: string,
   driverId: string,
   driverName: string,
   text: string
-): void {
-  addDoc(threadCol(rideId), {
+): Promise<string> {
+  const messageRef = await addDoc(threadCol(rideId), {
     sender: 'driver',
+    senderId: driverId,
     senderName: driverName,
     text,
     timestamp: serverTimestamp(),
   });
+  console.log('[chat] driver message written', { rideId, driverId, messageId: messageRef.id });
+  return messageRef.id;
 }
 
 export function listenForClientMessages(
@@ -74,6 +77,7 @@ export function listenForClientMessages(
   const processedMessages = new Set<string>();
 
   const unsubscribe = onSnapshot(q, (snapshot) => {
+    console.log('[chat] client message subscription update', { rideId, driverId, changes: snapshot.docChanges().length });
     snapshot.docChanges().forEach((change) => {
       if (change.type !== 'added') return;
       const key = change.doc.id;

@@ -295,7 +295,9 @@ export default function Dashboard() {
     const rideId = activeRideId;
     const clientId = chatRideInfo?.clientId || '';
 
+    console.log('[chat] subscribing to active ride', { rideId, driverId: uid });
     const unsubscribeUnread = getUnreadCount(database, rideId, uid, (count) => {
+      console.log('[chat] unread count update', { rideId, count });
       setUnreadCount(count);
     });
 
@@ -304,6 +306,7 @@ export default function Dashboard() {
       rideId,
       uid,
       (message, messageId) => {
+        console.log('[chat] client message received', { rideId, messageId, senderId: message.senderId });
         if (message.senderId !== uid && !showChatPanel) {
           const clientName = chatRideInfo?.clientName || 'Client';
           setToastData({
@@ -341,6 +344,7 @@ export default function Dashboard() {
     // If there's an active trip we can chat in, open the live chat panel.
     const validStatuses = ['accepted', 'arrived', 'started', 'at_store', 'picked_up', 'delivered'];
     if (activeRideId && activeRideStatus && validStatuses.includes(activeRideStatus)) {
+      setUnreadCount(0);
       setShowChatPanel(true);
       return;
     }
