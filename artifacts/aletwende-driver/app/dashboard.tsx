@@ -656,7 +656,7 @@ export default function Dashboard() {
         clientName={chatRideInfo?.clientName || 'Client'}
         clientId={chatRideInfo?.clientId || ''}
         driverData={driverData}
-        driverName={driverData ? `${driverData.profile?.firstName || ''} ${driverData.profile?.lastName || ''}`.trim() || auth.currentUser?.displayName || 'Driver' : auth.currentUser?.displayName || 'Driver'}
+        driverName={driverData ? `${driverData.profile?.firstName || ''} ${driverData.profile?.lastName || ''}`.trim() || auth.currentUser?.displayName || '' : auth.currentUser?.displayName || ''}
         pickupAddress={chatRideInfo?.pickupAddress || 'Pickup'}
         destinationAddress={chatRideInfo?.destinationAddress || 'Destination'}
         rideStatus={activeRideStatus}

@@ -75,13 +75,17 @@ export default function ChatPanel({
   }, [visible, rideId]);
 
   const handleSend = () => {
-    if (!inputText.trim() || !rideId || !driverData || !driverName || !rideStatus) return;
+    if (!inputText.trim() || !rideId || !driverData || !rideStatus) return;
 
     const terminalStatuses = ['completed', 'rejected', 'expired', 'cancelled', 'delivered'];
     if (terminalStatuses.includes(rideStatus)) return;
 
+    const registeredDriverName = `${driverData.profile?.firstName || ''} ${driverData.profile?.lastName || ''}`.trim();
+    const senderName = registeredDriverName || auth.currentUser?.displayName?.trim();
+    if (!senderName) return;
+
     console.log('[chat] driverData at send time:', driverData);
-    void sendDriverMessage(database, rideId, driverId, driverName, inputText.trim()).catch((error) => {
+    void sendDriverMessage(database, rideId, driverId, senderName, inputText.trim()).catch((error) => {
       console.error('[chat] failed to send driver message', error);
     });
     setInputText('');
