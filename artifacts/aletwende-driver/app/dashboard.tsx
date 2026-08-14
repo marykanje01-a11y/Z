@@ -241,13 +241,6 @@ export default function Dashboard() {
       if (data) {
         setIsOnline(data.isOnline === true);
         sliderX.setValue(data.isOnline ? SLIDE_RANGE : 0);
-        // Track active order for location updates and chat
-        if (data.currentOrderId) {
-          setActiveRideId(data.currentOrderId);
-        } else {
-          setActiveRideId(null);
-          setActiveRideStatus(null);
-        }
       } else {
         setIsOnline(false);
         sliderX.setValue(0);
