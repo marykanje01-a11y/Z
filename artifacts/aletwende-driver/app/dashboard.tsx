@@ -146,6 +146,7 @@ export default function Dashboard() {
       : markers;
 
   const [showChatPanel, setShowChatPanel] = useState(false);
+  const showChatPanelRef = useRef(showChatPanel);
   const [showInboxPanel, setShowInboxPanel] = useState(false);
   // A trip is active whenever there is a non-terminal trip status. When active
   // the map shows the whole route radius (FIT_BOUNDS) and disables the idle
@@ -156,6 +157,10 @@ export default function Dashboard() {
   const [showToast, setShowToast] = useState(false);
   const [toastData, setToastData] = useState({ clientName: '', message: '' });
   const [chatRideInfo, setChatRideInfo] = useState<any>(null);
+
+  useEffect(() => {
+    showChatPanelRef.current = showChatPanel;
+  }, [showChatPanel]);
 
   const sliderX = useRef(new Animated.Value(0)).current;
   // Toggle dimensions - track is full width minus padding, thumb is 48px
@@ -300,7 +305,7 @@ export default function Dashboard() {
       uid,
       (message, messageId) => {
         console.log('[chat] client message received', { rideId, messageId, senderId: message.senderId });
-        if (message.senderId !== uid && !showChatPanel) {
+        if (message.senderId !== uid && !showChatPanelRef.current) {
           const clientName = chatRideInfo?.clientName || 'Client';
           setToastData({
             clientName,
@@ -324,7 +329,7 @@ export default function Dashboard() {
       unsubscribeAutoDelete();
       unsubscribeCleanup();
     };
-  }, [activeRideId, chatRideInfo, showChatPanel]);
+  }, [activeRideId, chatRideInfo]);
 
   const handleInboxPress = () => {
     const uid = auth.currentUser?.uid;
