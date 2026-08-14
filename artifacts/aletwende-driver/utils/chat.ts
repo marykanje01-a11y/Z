@@ -75,9 +75,22 @@ export function listenForClientMessages(
 ): () => void {
   const q = query(threadCol(rideId), orderBy('timestamp', 'asc'));
   const processedMessages = new Set<string>();
+  let hasLoadedExistingMessages = false;
 
   const unsubscribe = onSnapshot(q, (snapshot) => {
     console.log('[chat] client message subscription update', { rideId, driverId, changes: snapshot.docChanges().length });
+
+    // Firestore replays every existing document as `added` when a listener is
+    // created. Mark that initial history as processed so old messages never
+    // trigger a new-message popup after the chat UI is reopened.
+    if (!hasLoadedExistingMessages) {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') processedMessages.add(change.doc.id);
+      });
+      hasLoadedExistingMessages = true;
+      return;
+    }
+
     snapshot.docChanges().forEach((change) => {
       if (change.type !== 'added') return;
       const key = change.doc.id;
