@@ -77,9 +77,6 @@ export default function ChatPanel({
   const handleSend = () => {
     if (!inputText.trim() || !rideId || !driverData || !rideStatus) return;
 
-    const terminalStatuses = ['completed', 'rejected', 'expired', 'cancelled', 'delivered'];
-    if (terminalStatuses.includes(rideStatus)) return;
-
     const registeredDriverName = `${driverData.profile?.firstName || ''} ${driverData.profile?.lastName || ''}`.trim();
     const senderName = registeredDriverName || auth.currentUser?.displayName?.trim();
     if (!senderName) return;
@@ -101,7 +98,7 @@ export default function ChatPanel({
     driverData &&
       rideId &&
       rideStatus &&
-      ['accepted', 'arrived', 'started', 'at_store', 'picked_up'].includes(rideStatus)
+      !['incoming_request', 'completed', 'rejected', 'expired', 'cancelled'].includes(rideStatus)
   );
   const isLoadingDriverProfile = !driverData;
 
