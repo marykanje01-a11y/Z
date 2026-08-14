@@ -272,7 +272,17 @@ export default function Dashboard() {
             destinationAddress: activeRequest.data?.destinationAddress || '',
             status: activeRequest.status,
           });
+        } else {
+          setActiveRideId(null);
+          setActiveRideStatus(null);
+          setChatRideInfo(null);
+          setShowChatPanel(false);
         }
+      } else {
+        setActiveRideId(null);
+        setActiveRideStatus(null);
+        setChatRideInfo(null);
+        setShowChatPanel(false);
       }
     });
 
@@ -340,7 +350,7 @@ export default function Dashboard() {
     setActiveTab('inbox');
 
     // If there's an active trip we can chat in, open the live chat panel.
-    const validStatuses = ['accepted', 'arrived', 'started', 'at_store', 'picked_up', 'delivered'];
+    const validStatuses = ['accepted', 'arrived', 'started', 'at_store', 'picked_up'];
     if (activeRideId && activeRideStatus && validStatuses.includes(activeRideStatus)) {
       setUnreadCount(0);
       setShowChatPanel(true);
@@ -645,7 +655,8 @@ export default function Dashboard() {
         rideId={activeRideId}
         clientName={chatRideInfo?.clientName || 'Client'}
         clientId={chatRideInfo?.clientId || ''}
-        driverName={driverData ? `${driverData.profile?.firstName || ''} ${driverData.profile?.lastName || ''}`.trim() || 'Driver' : 'Driver'}
+        driverData={driverData}
+        driverName={driverData ? `${driverData.profile?.firstName || ''} ${driverData.profile?.lastName || ''}`.trim() || auth.currentUser?.displayName || 'Driver' : auth.currentUser?.displayName || 'Driver'}
         pickupAddress={chatRideInfo?.pickupAddress || 'Pickup'}
         destinationAddress={chatRideInfo?.destinationAddress || 'Destination'}
         rideStatus={activeRideStatus}

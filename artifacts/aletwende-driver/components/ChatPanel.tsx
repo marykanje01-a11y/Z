@@ -31,6 +31,7 @@ interface ChatPanelProps {
   pickupAddress: string;
   destinationAddress: string;
   rideStatus: string | null;
+  driverData: any;
 }
 
 export default function ChatPanel({
@@ -43,6 +44,7 @@ export default function ChatPanel({
   pickupAddress,
   destinationAddress,
   rideStatus,
+  driverData,
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Array<{ id: string; data: any }>>([]);
   const [inputText, setInputText] = useState('');
@@ -50,6 +52,9 @@ export default function ChatPanel({
   const driverId = auth.currentUser?.uid || '';
 
   useEffect(() => {
+    setMessages([]);
+    setInputText('');
+
     if (!visible || !rideId) {
       return;
     }
@@ -70,11 +75,12 @@ export default function ChatPanel({
   }, [visible, rideId]);
 
   const handleSend = () => {
-    if (!inputText.trim() || !rideId || !driverName || !rideStatus) return;
+    if (!inputText.trim() || !rideId || !driverData || !driverName || !rideStatus) return;
 
     const terminalStatuses = ['completed', 'rejected', 'expired', 'cancelled', 'delivered'];
     if (terminalStatuses.includes(rideStatus)) return;
 
+    console.log('[chat] driverData at send time:', driverData);
     void sendDriverMessage(database, rideId, driverId, driverName, inputText.trim()).catch((error) => {
       console.error('[chat] failed to send driver message', error);
     });
@@ -88,8 +94,12 @@ export default function ChatPanel({
   if (!visible) return null;
 
   const canSendMessages = Boolean(
-    rideId && rideStatus && !['completed', 'rejected', 'expired', 'cancelled', 'delivered'].includes(rideStatus)
+    driverData &&
+      rideId &&
+      rideStatus &&
+      ['accepted', 'arrived', 'started', 'at_store', 'picked_up'].includes(rideStatus)
   );
+  const isLoadingDriverProfile = !driverData;
 
   return (
     <View style={styles.overlay}>
@@ -173,7 +183,7 @@ export default function ChatPanel({
           <View style={styles.inputContainer}>
             <TextInput
               style={[styles.textInput, !canSendMessages && styles.textInputDisabled]}
-              placeholder={canSendMessages ? "Type a message..." : "Messages unavailable"}
+              placeholder={isLoadingDriverProfile ? "Loading driver profile..." : canSendMessages ? "Type a message..." : "Messages unavailable"}
               placeholderTextColor="#999"
               value={inputText}
               onChangeText={setInputText}
